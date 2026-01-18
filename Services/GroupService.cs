@@ -10,7 +10,7 @@ public class GroupService(ApplicationDbcontext dbcontext):IGroupService
         using var conn= _dbcontext.Connection();
         var query="insert into groups(name,startdate,enddate,isactive,curatorteacherid) values(@name,@startdate,@enddate,@isactive,@curatorteacherid)";
         var res=await conn.ExecuteAsync(query,new{name=groupDto.Name,startdate=groupDto.Stratdate,enddate=groupDto.Enddate,isactive=groupDto.IsActive,curatorteacherid=groupDto.Curatorteacherid});
-        return res==0? new Response<string>(HttpStatusCode.NotFound,"notfound")
+        return res==0? new Response<string>(HttpStatusCode.InternalServerError,"Error")
         :new Response<string>(HttpStatusCode.OK,"ok");       
     }
 
@@ -26,7 +26,7 @@ public class GroupService(ApplicationDbcontext dbcontext):IGroupService
     public async  Task<List<Group>> GetAsync()
     {
           using var conn = _dbcontext.Connection();
-        var query="select * from groups";
+        var query="select * from groups;select * from groups";
         var res = await conn.QueryAsync<Group>(query);
         return res.ToList();
     }

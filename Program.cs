@@ -1,6 +1,10 @@
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<IStudentService,StudentService>();
 builder.Services.AddScoped<IGroupService,GroupService>();
+builder.Services.AddScoped<IGradeService,GradeService>();
+builder.Services.AddScoped<IEnrollmentService,EnrollmentService>();
+builder.Services.AddScoped<ISubjectService,SubjectService>();
+builder.Services.AddScoped<ITeacherService,TeacherService>();
 builder.Services.AddControllers();
 builder.Services.AddScoped<ApplicationDbcontext>();
 builder.Services.AddSwaggerGen();
