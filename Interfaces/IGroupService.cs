@@ -5,7 +5,7 @@ public interface IGroupService
      Task<Response<Group>> GetByIdAsync(int groupid);
        Task<List<Group>> GetListOfStudentsAsync();//list students
      Task<Response<string>> UpdateAsync(UpdateGroupDto updateGroupDto);
-     Task<Response<string>> UpdateActiveAsync(int groupid);
+     Task<Response<string>> UpdateActiveAsync(int groupid,bool active);
      Task<Response<string>> DeleteAsync(int groupid);
      
 }

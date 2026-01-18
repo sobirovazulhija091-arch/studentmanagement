@@ -7,9 +7,9 @@ public class TeacherService(ApplicationDbcontext dbcontext):ITeacherService
     public async Task<Response<string>> AddAsync(TeacherDto teacherDto)
     {
           using var conn= _dbcontext.Connection();
-        var query=@"insert into teachers(fullname,bithdate,phone,isactive,hiredat) 
-         values(@fullname,@bithdate,@phone,@isactive,@hiredat)";
-        var res=await conn.ExecuteAsync(query,new{fullname=teacherDto.Fullname,bithdate=teacherDto.Birthdate,phone=teacherDto.Phone,isactive=teacherDto.IsActive,hiredat=teacherDto.HiredAt});
+        var query=@"insert into teachers(fullname,phone,isactive,hiredat) 
+         values(@fullname,@phone,@isactive,@hiredat)";
+        var res=await conn.ExecuteAsync(query,new{fullname=teacherDto.Fullname,phone=teacherDto.Phone,isactive=teacherDto.IsActive,hiredat=teacherDto.HiredAt});
         return res==0? new Response<string>(HttpStatusCode.InternalServerError,"Error")
         :new Response<string>(HttpStatusCode.OK,"ok");      
     }
@@ -40,11 +40,11 @@ public class TeacherService(ApplicationDbcontext dbcontext):ITeacherService
         :new Response<Teacher>(HttpStatusCode.OK,"ok");
     }
 
-    public async Task<Response<string>> UpdateActiveAsync(int teacherid)
+    public async Task<Response<string>> UpdateActiveAsync(int teacherid,bool active)
     {
         using var conn = _dbcontext.Connection();
         var query="update  teachers set isactive=@Isactive  where id=@Id";
-        var res = await conn.ExecuteAsync(query,new{Id=teacherid});
+        var res = await conn.ExecuteAsync(query,new{Isactive=active,Id=teacherid});
          return res==0? new Response<string>(HttpStatusCode.NotFound,"notfound")
         :new Response<string>(HttpStatusCode.OK,"ok");
     }

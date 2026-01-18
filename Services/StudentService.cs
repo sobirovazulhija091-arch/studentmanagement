@@ -50,11 +50,11 @@ public class StudentService(ApplicationDbcontext dbcontext):IStudentService
         :new Response<string>(HttpStatusCode.OK,"ok");
     }
 
-    public async Task<Response<string>> UpdateGroupIdAsync(int studentid)
+    public async Task<Response<string>> UpdateGroupIdAsync(int studentid,int newgroupid)
     {
         using var conn = _dbcontext.Connection();
         var query="update  students set groupid=@GroupId where id=@Id";
-        var res = await conn.ExecuteAsync(query,new{Id=studentid});
+        var res = await conn.ExecuteAsync(query,new{GroupId=newgroupid,Id=studentid});
         return res==0? new Response<string>(HttpStatusCode.NotFound,"notfound")
         :new Response<string>(HttpStatusCode.OK,"ok");
     }

@@ -21,11 +21,11 @@ public class EnrollmentService(ApplicationDbcontext dbcontext):IEnrollmentServic
         var res = await conn.QueryAsync<Enrollment>(query);
         return res.ToList();
     }//stdent whit subject
-   public async Task<Response<string>> UpdateActiveAsync(int enrollmentid)
+   public async Task<Response<string>> UpdateActiveAsync(int enrollmentid,bool active)
     {
         using var conn = _dbcontext.Connection();
         var query="update  enrollments set isactive=@Isactive  where id=@Id";
-        var res = await conn.ExecuteAsync(query,new{Id=enrollmentid});
+        var res = await conn.ExecuteAsync(query,new{Isactive=active,Id=enrollmentid});
          return res==0? new Response<string>(HttpStatusCode.NotFound,"notfound")
         :new Response<string>(HttpStatusCode.OK,"ok");
     }

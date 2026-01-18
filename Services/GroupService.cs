@@ -48,11 +48,11 @@ public class GroupService(ApplicationDbcontext dbcontext):IGroupService
         return res.ToList();
     }
 
-    public async Task<Response<string>> UpdateActiveAsync(int groupid)
+    public async Task<Response<string>> UpdateActiveAsync(int groupid,bool active)
     {
         using var conn = _dbcontext.Connection();
         var query="update  groups set isactive=@Isactive  where id=@Id";
-        var res = await conn.ExecuteAsync(query,new{Id=groupid});
+        var res = await conn.ExecuteAsync(query,new{Isactive=active,Id=groupid});
          return res==0? new Response<string>(HttpStatusCode.NotFound,"notfound")
         :new Response<string>(HttpStatusCode.OK,"ok");
     }

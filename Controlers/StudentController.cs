@@ -31,8 +31,8 @@ public class StudentController(IStudentService studentService):ControllerBase
         return await studentService.UpdateAsync(updateStudentDto);
     }
     [HttpPatch]
-    public async Task<Response<string>> UpdateGroupIdAsync(int studentid)
+    public async Task<Response<string>> UpdateGroupIdAsync(int studentid,int newgroupid)
     {
-        return await studentService.UpdateGroupIdAsync(studentid);
+        return await studentService.UpdateGroupIdAsync(studentid,newgroupid);
     }
 }

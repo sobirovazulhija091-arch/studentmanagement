@@ -29,9 +29,9 @@ public class GroupController(IGroupService groupService):ControllerBase
           return await groupService.GetListOfStudentsAsync();
     }
     [HttpPatch]
-    public async Task<Response<string>> UpdateActiveAsync(int groupid)
+    public async Task<Response<string>> UpdateActiveAsync(int groupid,bool active)
     {
-        return await groupService.UpdateActiveAsync(groupid);
+        return await groupService.UpdateActiveAsync(groupid,active);
     }
      [HttpPut]
     public async Task<Response<string>> UpdateAsync(UpdateGroupDto updateGroupDto)

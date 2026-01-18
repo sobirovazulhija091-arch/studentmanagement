@@ -16,9 +16,9 @@ using Microsoft.AspNetCore.Mvc;
            return await enrollmentService.GetAsync();
     }//stdent whit subject
     [HttpPatch]
-   public async Task<Response<string>> UpdateActiveAsync(int enrollmentid)
+   public async Task<Response<string>> UpdateActiveAsync(int enrollmentid,bool active)
     {
-         return await enrollmentService.UpdateActiveAsync(enrollmentid);
+         return await enrollmentService.UpdateActiveAsync(enrollmentid,active);
     }
  }
  

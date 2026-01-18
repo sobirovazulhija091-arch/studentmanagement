@@ -25,9 +25,9 @@ public class TeacherController(ITeacherService teacherService):ControllerBase
         return await teacherService.GetByIdAsync(teacherid);
     }
 [HttpPatch]
-    public async Task<Response<string>> UpdateActiveAsync(int teacherid)
+    public async Task<Response<string>> UpdateActiveAsync(int teacherid,bool active)
     {
-         return await teacherService.UpdateActiveAsync(teacherid);
+         return await teacherService.UpdateActiveAsync(teacherid,active);
     }
 [HttpPut]
     public async Task<Response<string>> UpdateAsync(UpdateTeacherDto updateTeacherDto)
