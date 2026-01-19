@@ -16,7 +16,7 @@ public class StudentController(IStudentService studentService):ControllerBase
        return await studentService.DeleteAsync(studentid);
     }
     [HttpGet]
-    public async Task<List<Student>> GetAsync()
+    public async Task<Response<List<Student>>> GetAsync()
     {
        return await studentService.GetAsync();
     }
@@ -26,9 +26,9 @@ public class StudentController(IStudentService studentService):ControllerBase
           return await studentService.GetByIdAsync(studentid);
     }
      [HttpPut]
-    public async Task<Response<string>> UpdateAsync(UpdateStudentDto updateStudentDto)
+    public async Task<Response<string>> UpdateAsync(int studentid,UpdateStudentDto updateStudentDto)
     {
-        return await studentService.UpdateAsync(updateStudentDto);
+        return await studentService.UpdateAsync(studentid,updateStudentDto);
     }
     [HttpPatch]
     public async Task<Response<string>> UpdateGroupIdAsync(int studentid,int newgroupid)

@@ -15,7 +15,7 @@ public class SubjectController(ISubjectService subjectService):ControllerBase
        return await subjectService.DeleteAsync(subjectid);
     }
 [HttpGet]
-    public async Task<List<Subject>> GetAsync()
+    public async   Task<Response<List<Subject>>> GetAsync()
     {
         return await subjectService.GetAsync();  
     }
@@ -30,8 +30,8 @@ public class SubjectController(ISubjectService subjectService):ControllerBase
       return await subjectService.GetListOfStudentsAsync(subjectid);
     }
 [HttpPut]
-    public async Task<Response<string>> UpdateAsync(UpdateSubjectDto updateSubjectDto)
+    public async Task<Response<string>> UpdateAsync(int subjectid,UpdateSubjectDto updateSubjectDto)
     {
-        return await subjectService.UpdateAsync(updateSubjectDto);
+        return await subjectService.UpdateAsync(subjectid,updateSubjectDto);
     }
 }

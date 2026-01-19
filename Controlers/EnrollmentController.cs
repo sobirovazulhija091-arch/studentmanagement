@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
          return await enrollmentService.AddAsync(enrollmentDto);
     }
     [HttpGet]
-    public async Task<List<Enrollment>> GetAsync()
+    public async Task<Response<List<Enrollment>>> GetAsync()
     {
            return await enrollmentService.GetAsync();
     }//stdent whit subject

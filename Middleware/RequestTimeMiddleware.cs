@@ -31,7 +31,6 @@ public class RequestTimeMiddleware
         catch (Exception ex)
         {
             _logger.LogError(ex, "Something went wrong");
-        
         }
 
         var end = DateTime.Now;

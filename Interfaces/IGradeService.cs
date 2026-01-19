@@ -1,8 +1,8 @@
 public interface IGradeService
 {
     Task<Response<string>> AddAsync(GradeDto gradeDto);
-    Task<List<Grade>> GetAsync();
-    Task<List<Grade>> GetGradeAsync();
-    Task<List<Grade>> GetGradeAverageAsync();
+    Task<Response<List<Grade>>> GetAsync();
+    Task<Response<List<Grade>>> GetGradeAsync();
+     Task<Response<List<Grade>>> GetGradeAverageAsync();
 
 }

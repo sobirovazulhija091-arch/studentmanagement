@@ -14,7 +14,7 @@ public class GroupController(IGroupService groupService):ControllerBase
        return await groupService.DeleteAsync(groupid);
     }
 [HttpGet]
-    public async  Task<List<Group>> GetAsync()
+    public async  Task<Response<List<Group>>> GetAsync()
     {
           return await groupService.GetAsync();
     }
@@ -24,7 +24,7 @@ public class GroupController(IGroupService groupService):ControllerBase
           return await groupService.GetByIdAsync(groupid);
     }
 [HttpGet("whit students")]
-    public async Task<List<Group>> GetListOfStudentsAsync()
+    public async Task<Response<List<Group>>> GetListOfStudentsAsync()
     {
           return await groupService.GetListOfStudentsAsync();
     }
@@ -34,9 +34,9 @@ public class GroupController(IGroupService groupService):ControllerBase
         return await groupService.UpdateActiveAsync(groupid,active);
     }
      [HttpPut]
-    public async Task<Response<string>> UpdateAsync(UpdateGroupDto updateGroupDto)
+    public async Task<Response<string>> UpdateAsync(int groupid,UpdateGroupDto updateGroupDto)
     {
-        return await groupService.UpdateAsync(updateGroupDto);
+        return await groupService.UpdateAsync(groupid,updateGroupDto);
     }
 
 }

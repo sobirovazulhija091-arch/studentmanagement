@@ -15,7 +15,7 @@ public class TeacherController(ITeacherService teacherService):ControllerBase
         return await teacherService.DeleteAsync(teacherid);
     }
 [HttpGet]
-    public async Task<List<Teacher>> GetAsync()
+    public async   Task<Response<List<Teacher>>>  GetAsync()
     {
           return await teacherService.GetAsync();
     }
@@ -30,8 +30,8 @@ public class TeacherController(ITeacherService teacherService):ControllerBase
          return await teacherService.UpdateActiveAsync(teacherid,active);
     }
 [HttpPut]
-    public async Task<Response<string>> UpdateAsync(UpdateTeacherDto updateTeacherDto)
+    public async Task<Response<string>> UpdateAsync(int teacherid,UpdateTeacherDto updateTeacherDto)
     {
-        return await teacherService.UpdateAsync(updateTeacherDto);
+        return await teacherService.UpdateAsync(teacherid,updateTeacherDto);
     }
 }

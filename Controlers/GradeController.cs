@@ -10,17 +10,17 @@ public class GradeController(IGradeService gradeService):ControllerBase
         return await gradeService.AddAsync(gradeDto);
     }
 [HttpGet]
-    public async Task<List<Grade>> GetAsync()
+    public async   Task<Response<List<Grade>>> GetAsync()
     {
        return await gradeService.GetAsync();
     }
 [HttpGet("grade")]
-    public async Task<List<Grade>> GetGradeAsync()
+    public async   Task<Response<List<Grade>>> GetGradeAsync()
     {
        return await gradeService.GetGradeAsync();
     }
 [HttpGet("ave")]
-    public async Task<List<Grade>> GetGradeAverageAsync()
+    public async   Task<Response<List<Grade>>> GetGradeAverageAsync()
     {
         return await gradeService.GetGradeAverageAsync();
     }
