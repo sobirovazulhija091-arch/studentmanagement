@@ -5,4 +5,5 @@ public class Group:BaseEntite
      public string? Enddate{get;set;}
      public bool IsActive{get;set;}=true;
      public int Curatorteacherid {get;set;}
+     public List<Student> Students{get;set;}=[];
 }

@@ -24,11 +24,7 @@ public class SubjectController(ISubjectService subjectService):ControllerBase
     {
         return await subjectService.GetByIdAsync(subjectid);
     }
-[HttpGet("list students")]
-    public async Task<List<Subject>> GetListOfStudentsAsync(int subjectid)
-    {
-      return await subjectService.GetListOfStudentsAsync(subjectid);
-    }
+
 [HttpPut]
     public async Task<Response<string>> UpdateAsync(int subjectid,UpdateSubjectDto updateSubjectDto)
     {

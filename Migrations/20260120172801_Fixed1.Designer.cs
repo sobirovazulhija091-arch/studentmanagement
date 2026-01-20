@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -10,9 +11,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace WebStudentManagement.Migrations
 {
     [DbContext(typeof(ApplicationDbcontext))]
-    partial class ApplicationDbcontextModelSnapshot : ModelSnapshot
+    [Migration("20260120172801_Fixed1")]
+    partial class Fixed1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -71,9 +74,6 @@ namespace WebStudentManagement.Migrations
                     b.Property<string>("GradeType")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<int>("GradeValue")
-                        .HasColumnType("integer");
 
                     b.Property<DateTime>("GradedAt")
                         .HasColumnType("timestamp with time zone");
@@ -158,8 +158,6 @@ namespace WebStudentManagement.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("GroupId");
 
                     b.ToTable("Students");
                 });
@@ -266,22 +264,6 @@ namespace WebStudentManagement.Migrations
                     b.Navigation("Subject");
 
                     b.Navigation("Teacher");
-                });
-
-            modelBuilder.Entity("Student", b =>
-                {
-                    b.HasOne("Group", "Group")
-                        .WithMany("Students")
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Group");
-                });
-
-            modelBuilder.Entity("Group", b =>
-                {
-                    b.Navigation("Students");
                 });
 
             modelBuilder.Entity("Student", b =>

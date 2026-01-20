@@ -19,9 +19,9 @@ public class GradeController(IGradeService gradeService):ControllerBase
     {
        return await gradeService.GetGradeAsync();
     }
-[HttpGet("ave")]
-    public async   Task<Response<List<Grade>>> GetGradeAverageAsync()
-    {
-        return await gradeService.GetGradeAverageAsync();
-    }
+// [HttpGet("ave")]
+//     public async   Task<Response<List<Grade>>> GetGradeAverageAsync()
+//     {
+//         return await gradeService.GetGradeAverageAsync();
+//     }
 }

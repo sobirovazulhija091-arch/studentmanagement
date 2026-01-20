@@ -1,33 +1,48 @@
-// using System.Net;
-// using Dapper;
-// public class EnrollmentService(ApplicationDbcontext dbcontext):IEnrollmentService
-// {
-//     private readonly ApplicationDbcontext _dbcontext=dbcontext;
-//     public async Task<Response<string>> AddAsync(EnrollmentDto enrollmentDto)
-//     {
-//          using var conn= _dbcontext.Connection();
-//         var query=@"insert into enrollments(studentid,subjectid,isactive) 
-//          values(@studentid,@subjectid,@isactive)";
-//         var res=await conn.ExecuteAsync(query,new{studentid=enrollmentDto.StudentId,
-//         subjectid=enrollmentDto.SubjectId,isactive=enrollmentDto.IsActive});
-//         return res==0? new Response<string>(HttpStatusCode.InternalServerError,"Error")
-//         :new Response<string>(HttpStatusCode.OK,"ok");  
-//     }
-//     public async Task<List<Enrollment>> GetAsync()
-//     {
-//            using var conn = _dbcontext.Connection();
-//         var query=@"select  e.*,sa.*,st.* from enrollments e join sabjects sa on sa.id=e.sabjectid join 
-//                students st on st.id=e.studentid where isactive=true";
-//         var res = await conn.QueryAsync<Enrollment>(query);
-//         return res.ToList();
-//     }//stdent whit subject
-//    public async Task<Response<string>> UpdateActiveAsync(int enrollmentid,bool active)
-//     {
-//         using var conn = _dbcontext.Connection();
-//         var query="update  enrollments set isactive=@Isactive  where id=@Id";
-//         var res = await conn.ExecuteAsync(query,new{Isactive=active,Id=enrollmentid});
-//          return res==0? new Response<string>(HttpStatusCode.NotFound,"notfound")
-//         :new Response<string>(HttpStatusCode.OK,"ok");
-//     }
+using System.Net;
+using Dapper;
+using Microsoft.EntityFrameworkCore;
+public class EnrollmentService(ApplicationDbcontext dbcontext):IEnrollmentService
+{
+    private readonly ApplicationDbcontext _dbcontext=dbcontext;
+    public async Task<Response<string>> AddAsync(EnrollmentDto enrollmentDto)
+    {
+        Enrollment enrollment=new Enrollment
+        {
+            StudentId=enrollmentDto.StudentId,
+            SubjectId=enrollmentDto.SubjectId,
+            IsActive=enrollmentDto.IsActive
+        };
+          _dbcontext.Enrollments.Add(enrollment);
+          await _dbcontext.SaveChangesAsync();
 
-// }
+        return new Response<string>(HttpStatusCode.OK,"ok");  
+    }
+    public async Task<Response<List<Enrollment>>> GetAsync()
+    {
+             return new Response<List<Enrollment>>(HttpStatusCode.OK,"ok",await  _dbcontext.Enrollments.ToListAsync());
+
+    }//stdent whit subject
+  
+        public async Task<Response<string>> UpdateActiveAsync(int enrollmentId, bool active)
+{
+     var enrollment = await _dbcontext.Enrollments.FirstOrDefaultAsync(e => e.Id == enrollmentId);
+
+    if (enrollment == null)
+    {
+        return new Response<string>(
+            HttpStatusCode.NotFound,
+            "Enrollment not found"
+        );
+    }
+
+    enrollment.IsActive = active;
+    await _dbcontext.SaveChangesAsync();
+
+    return new Response<string>(
+        HttpStatusCode.OK,
+        "Updated successfully"
+    );
+
+    }
+
+}

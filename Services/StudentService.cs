@@ -1,61 +1,69 @@
 
-// using Dapper;
-// using System.Net;
-// public class StudentService(ApplicationDbcontext dbcontext):IStudentService
-// { 
-//     private readonly ApplicationDbcontext _dbcontext=dbcontext;
+using Dapper;
+using Microsoft.EntityFrameworkCore;
+using System.Net;
+public class StudentService(ApplicationDbcontext dbcontext):IStudentService
+{ 
+    private readonly ApplicationDbcontext _dbcontext=dbcontext;
 
-//     public async Task<Response<string>> AddAsync(StudentDto studentDto)
-//     {
-      
-//         using var conn = _dbcontext.Connection();
-//         var query="insert into students(fullname,birthdate,phone,isactive,groupid) values(@fullname,@birthdate,@phone,@isactive,@groupid)";
-//         var res = await conn.ExecuteAsync(query,studentDto);
-//          return res==0? new Response<string>(HttpStatusCode.NotFound,"notfound")
-//         :new Response<string>(HttpStatusCode.OK,"ok");
-//     }
+    public async Task<Response<string>> AddAsync(StudentDto studentDto)
+    {
+       Student student = new Student
+       {
+           Fullname=studentDto.Fullname,
+           Birthdate=studentDto.Birthdate,
+           Phone=studentDto.Phone,
+           IsActive=studentDto.IsActive,
+           GroupId=studentDto.GroupId
+       }; 
+         _dbcontext.Students.Add(student);
+        await _dbcontext.SaveChangesAsync();
+         return new Response<string>(HttpStatusCode.OK,"ok");
+    }
 
-//     public async Task<Response<string>> DeleteAsync(int studentid)
-//     {
-//        using var conn = _dbcontext.Connection();
-//         var query="delete  from students where id=@Id";
-//         var res = await conn.ExecuteAsync(query,new{Id=studentid});
-//         return res==0? new Response<string>(HttpStatusCode.NotFound,"notfound")
-//         :new Response<string>(HttpStatusCode.OK,"ok");
-//     }
+    public async Task<Response<string>> DeleteAsync(int studentid)
+    {
+       var res = await _dbcontext.Students.FindAsync(studentid);
+         _dbcontext.Students.Remove(res);
+          await _dbcontext.SaveChangesAsync();
+        return new Response<string>(HttpStatusCode.OK,"ok");
+    }
 
-//     public async Task<List<Student>> GetAsync()
-//     {
-//         using var conn = _dbcontext.Connection();
-//         var query="select * from students";
-//         var res = await conn.QueryAsync<Student>(query);
-//         return res.ToList();
-//     }
+    public async Task<Response<List<Student>>> GetAsync()
+    {
+        return new Response<List<Student>>(HttpStatusCode.OK,"ok",await _dbcontext.Students.ToListAsync());
+    }
 
-//     public async Task<Response<Student>> GetByIdAsync(int studentid)
-//     {
-//        using var conn = _dbcontext.Connection();
-//         var query="select * from students where id=@Id";
-//         var res = await conn.QueryFirstOrDefaultAsync<Student>(query,new{Id=studentid});
-//          return res==null? new Response<Student>(HttpStatusCode.NotFound,"notfound")
-//         :new Response<Student>(HttpStatusCode.OK,"ok");
-//     }
+    public async Task<Response<Student>> GetByIdAsync(int studentid)
+    {
+       var res = await _dbcontext.Students.FindAsync(studentid);
+        return new Response<Student>(HttpStatusCode.OK,"ok",res);
+    }
 
-//     public async Task<Response<string>> UpdateAsync(UpdateStudentDto updateStudentDto)
-//     {
-//         using var conn = _dbcontext.Connection();
-//         var query="update  students set fullname=@Fullname,birthdate=@Birthdate,phone=@Phone,isactive=@Isactive,groupid=@GroupId where id=@Id";
-//         var res = await conn.ExecuteAsync(query,updateStudentDto);
-//          return res==0? new Response<string>(HttpStatusCode.NotFound,"notfound")
-//         :new Response<string>(HttpStatusCode.OK,"ok");
-//     }
+    public async Task<Response<string>> UpdateAsync(int studentid,UpdateStudentDto updateStudentDto)
+    {
+          var s = await _dbcontext.Students.FindAsync(studentid);
+            s.Fullname=updateStudentDto.Fullname;
+            s.Birthdate=updateStudentDto.Birthdate;
+            s.GroupId=updateStudentDto.GroupId;
+           s.IsActive=updateStudentDto.IsActive;
+        
+      await _dbcontext.SaveChangesAsync();
+        return new Response<string>(HttpStatusCode.OK,"ok");
+    }
 
-//     public async Task<Response<string>> UpdateGroupIdAsync(int studentid,int newgroupid)
-//     {
-//         using var conn = _dbcontext.Connection();
-//         var query="update  students set groupid=@GroupId where id=@Id";
-//         var res = await conn.ExecuteAsync(query,new{GroupId=newgroupid,Id=studentid});
-//         return res==0? new Response<string>(HttpStatusCode.NotFound,"notfound")
-//         :new Response<string>(HttpStatusCode.OK,"ok");
-//     }
-// }
+    public async Task<Response<string>> UpdateGroupIdAsync(int studentid,int newgroupid)
+    {
+        var stu = await _dbcontext.Students.FirstOrDefaultAsync(a=>a.Id==studentid);
+        if (stu==null)
+        {
+             return new Response<string>(HttpStatusCode.NotFound,"Not Found");
+        }
+          stu.GroupId=newgroupid;
+          await _dbcontext.SaveChangesAsync();
+          return new Response<string>(
+        HttpStatusCode.OK,
+        "Updated successfully"
+    );
+    }
+}

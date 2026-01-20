@@ -1,69 +1,76 @@
-// using System.Net;
-// using Dapper;
+using System.Net;
+using Dapper;
+using Microsoft.EntityFrameworkCore;
 
-// public class GroupService(ApplicationDbcontext dbcontext):IGroupService
-// {
-//     private readonly ApplicationDbcontext _dbcontext=dbcontext;
+public class GroupService(ApplicationDbcontext dbcontext):IGroupService
+{
+    private readonly ApplicationDbcontext _dbcontext=dbcontext;
 
-//     public async Task<Response<string>> AddAsync(GroupDto groupDto)
-//     {
-//         using var conn= _dbcontext.Connection();
-//         var query="insert into groups(name,startdate,enddate,isactive,curatorteacherid) values(@name,@startdate,@enddate,@isactive,@curatorteacherid)";
-//         var res=await conn.ExecuteAsync(query,new{name=groupDto.Name,startdate=groupDto.Stratdate,enddate=groupDto.Enddate,isactive=groupDto.IsActive,curatorteacherid=groupDto.Curatorteacherid});
-//         return res==0? new Response<string>(HttpStatusCode.InternalServerError,"Error")
-//         :new Response<string>(HttpStatusCode.OK,"ok");       
-//     }
+    public async Task<Response<string>> AddAsync(GroupDto groupDto)
+    {
+         Group group = new Group
+         {
+             Name=groupDto.Name,
+             Stratdate=groupDto.Stratdate,
+             Enddate=groupDto.Enddate,
+             IsActive=groupDto.IsActive,
+             Curatorteacherid=groupDto.Curatorteacherid
+         };
+         _dbcontext.Groups.Add(group);
+        await _dbcontext.SaveChangesAsync();
+        return new Response<string>(HttpStatusCode.OK,"ok");       
+    }
 
-//     public async Task<Response<string>> DeleteAsync(int groupid)
-//     {
-//         using var conn = _dbcontext.Connection();
-//         var query="delete  from groups where id=@Id";
-//         var res = await conn.ExecuteAsync(query,new{Id=groupid});
-//         return res==0? new Response<string>(HttpStatusCode.NotFound,"notfound")
-//         :new Response<string>(HttpStatusCode.OK,"ok");
-//     }
+    public async Task<Response<string>> DeleteAsync(int groupid)
+    {
+         var res = await _dbcontext.Groups.FindAsync(groupid);
+         _dbcontext.Groups.Remove(res);
+          await _dbcontext.SaveChangesAsync();
+        return new Response<string>(HttpStatusCode.OK,"ok");
+    }
 
-//     public async  Task<List<Group>> GetAsync()
-//     {
-//           using var conn = _dbcontext.Connection();
-//         var query="select * from groups;select * from groups";
-//         var res = await conn.QueryAsync<Group>(query);
-//         return res.ToList();
-//     }
+    public async  Task<Response<List<Group>>> GetAsync()
+    {
+        return new Response<List<Group>>(HttpStatusCode.OK,"ok",await _dbcontext.Groups.ToListAsync());
+    }
 
-//     public async Task<Response<Group>> GetByIdAsync(int groupid)
-//     {
-//         using var conn = _dbcontext.Connection();
-//         var query="select * from groups where id=@Id";
-//         var res = await conn.QueryFirstOrDefaultAsync<Group>(query,new{Id=groupid});
-//          return res==null? new Response<Group>(HttpStatusCode.NotFound,"notfound")
-//         :new Response<Group>(HttpStatusCode.OK,"ok");
-//     }
+    public async Task<Response<Group>> GetByIdAsync(int groupid)
+    {
+        var res = await _dbcontext.Groups.FindAsync(groupid);
+        return new Response<Group>(HttpStatusCode.OK,"ok",res);
+    }
 
-//     public async Task<List<Group>> GetListOfStudentsAsync()
-//     {
-//           using var conn = _dbcontext.Connection();
-//         var query="select s.*,g.name from groups g join students s on s.groupid=g.id";
-//         var res = await conn.QueryAsync<Group>(query);
-//         return res.ToList();
-//     }
+    public async Task<Response<List<Group>>> GetListOfStudentsAsync()
+    {
+         var res = await _dbcontext.Groups.Include(a=>a.Students).ToListAsync();
+        return new Response<List<Group>>(HttpStatusCode.OK,"ok",res);
+    }
 
-//     public async Task<Response<string>> UpdateActiveAsync(int groupid,bool active)
-//     {
-//         using var conn = _dbcontext.Connection();
-//         var query="update  groups set isactive=@Isactive  where id=@Id";
-//         var res = await conn.ExecuteAsync(query,new{Isactive=active,Id=groupid});
-//          return res==0? new Response<string>(HttpStatusCode.NotFound,"notfound")
-//         :new Response<string>(HttpStatusCode.OK,"ok");
-//     }
+    public async Task<Response<string>> UpdateActiveAsync(int groupid,bool active)
+    {
+        var group = await _dbcontext.Groups.FirstOrDefaultAsync(a=>a.Id==groupid);
+        if (group==null)
+        {
+             return new Response<string>(HttpStatusCode.NotFound,"Not Found");
+        }
+          group.IsActive=active;
+          await _dbcontext.SaveChangesAsync();
+          return new Response<string>(
+        HttpStatusCode.OK,
+        "Updated successfully"
+    );
+    }
 
-//     public async Task<Response<string>> UpdateAsync(UpdateGroupDto updateGroupDto)
-//     {
-//         using var conn = _dbcontext.Connection();
-//         var query=@"update  groups set name=@Name,startdate=@Startdate,enddate=@Enddate,
-//         isactive=@Isactive,curatorteacherid=@Curatorteacherid  where id=@Id";
-//         var res = await conn.ExecuteAsync(query,updateGroupDto);
-//          return res==0? new Response<string>(HttpStatusCode.NotFound,"notfound")
-//         :new Response<string>(HttpStatusCode.OK,"ok");
-//     }
-// }
+    public async Task<Response<string>> UpdateAsync(int groupid,UpdateGroupDto updateGroupDto)
+    {
+            var g = await _dbcontext.Groups.FindAsync(groupid);
+            g.Name=updateGroupDto.Name;
+            g.Stratdate=updateGroupDto.Stratdate;
+            g.Enddate=updateGroupDto.Enddate;
+        g.IsActive=updateGroupDto.IsActive;
+        g.Curatorteacherid=updateGroupDto.Curatorteacherid;
+        
+      await _dbcontext.SaveChangesAsync();
+        return new Response<string>(HttpStatusCode.OK,"ok");
+    }
+}
