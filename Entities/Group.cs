@@ -1,4 +1,5 @@
 public class Group:BaseEntite
+
 {
      public string Name{get;set;}=null!;
      public string? Stratdate{get;set;}

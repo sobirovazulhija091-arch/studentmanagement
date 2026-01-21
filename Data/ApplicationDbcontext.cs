@@ -9,6 +9,20 @@ public class ApplicationDbcontext(DbContextOptions<ApplicationDbcontext> options
      public DbSet<Subject> Subjects{get;set;}
      public DbSet<Group> Groups{get;set;}
      public DbSet<Grade> Grades{get;set;}
-
+     protected override void OnModelCreating(ModelBuilder modelBuilder)
+     {
+          modelBuilder.Entity<Group>(builder =>
+        {
+             builder.HasIndex(a=>a.Name).IsUnique();
+        });
+           modelBuilder.Entity<Student>(builder =>
+        {
+             builder.HasIndex(a=>a.Phone).IsUnique();
+        });
+  modelBuilder.Entity<Teacher>(builder =>
+        {
+             builder.HasIndex(a=>a.Phone).IsUnique();
+        });
+     }
 
 }

@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 public class GradeService(ApplicationDbcontext dbcontext):IGradeService
 {
        private ApplicationDbcontext _dbcontext=dbcontext;
-
     public async Task<Response<string>> AddAsync(GradeDto gradeDto)
     {
          Grade grade = new Grade
@@ -21,12 +20,10 @@ public class GradeService(ApplicationDbcontext dbcontext):IGradeService
         await _dbcontext.SaveChangesAsync();
          return new Response<string>(HttpStatusCode.OK,"ok");      
     }
-
     public async Task<Response<List<Grade>>> GetAsync()
     {
         return new Response<List<Grade>>(HttpStatusCode.OK,"ok",await _dbcontext.Grades.ToListAsync());
     }
-
     public async Task<Response<List<Grade>>> GetGradeAsync()
     {
          var res = await _dbcontext.Grades.Include(a=>a.Subject).Include(g => g.Student).ToListAsync();
