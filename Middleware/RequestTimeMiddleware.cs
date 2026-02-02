@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
-
 public class RequestTimeMiddleware
 {
     private readonly RequestDelegate _next;
@@ -11,7 +10,7 @@ public class RequestTimeMiddleware
     public RequestTimeMiddleware(RequestDelegate next, ILogger<RequestTimeMiddleware> logger)
     {
         _next = next;
-        _logger = logger;
+        _logger = logger; 
     }
 
     public async Task InvokeAsync(HttpContext context)

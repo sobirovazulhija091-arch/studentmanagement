@@ -7,9 +7,11 @@ public class GradeService(ApplicationDbcontext dbcontext):IGradeService
        private ApplicationDbcontext _dbcontext=dbcontext;
     public async Task<Response<string>> AddAsync(GradeDto gradeDto)
     {
-         Grade grade = new Grade
-         {
-           StudentId=gradeDto.StudentId,
+        try
+        {
+               Grade grade = new Grade
+          {
+            StudentId=gradeDto.StudentId,
              SubjectId=gradeDto.SubjectId,
              TeacherId=gradeDto.TeacherId,
              GradeValue=gradeDto.GradeValue,
@@ -18,16 +20,37 @@ public class GradeService(ApplicationDbcontext dbcontext):IGradeService
          };
          _dbcontext.Grades.Add(grade);
         await _dbcontext.SaveChangesAsync();
-         return new Response<string>(HttpStatusCode.OK,"ok");      
+         return new Response<string>(HttpStatusCode.OK,"ok");    
+        }
+        catch (System.Exception)
+        {
+            
+             return new Response<string>(HttpStatusCode.InternalServerError,"Internal Server Error");
+        }    
     }
     public async Task<Response<List<Grade>>> GetAsync()
     {
+        try
+        {
         return new Response<List<Grade>>(HttpStatusCode.OK,"ok",await _dbcontext.Grades.ToListAsync());
+        }
+        catch (System.Exception)
+        {
+        return new Response<List<Grade>>(HttpStatusCode.InternalServerError,"Internal Server Error");
+            
+        }
     }
     public async Task<Response<List<Grade>>> GetGradeAsync()
     {
-         var res = await _dbcontext.Grades.Include(a=>a.Subject).Include(g => g.Student).ToListAsync();
+        try
+        {
+             var res = await _dbcontext.Grades.Include(a=>a.Subject).Include(g => g.Student).ToListAsync();
         return new Response<List<Grade>>(HttpStatusCode.OK,"ok",res);
+        }
+        catch (System.Exception)
+        {
+        return new Response<List<Grade>>(HttpStatusCode.NotFound,"Not Found");
+        }
     }
 
     // public async Task<List<Grade>> GetGradeAverageAsync()

@@ -1,4 +1,3 @@
-
 using Dapper;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
@@ -8,7 +7,9 @@ public class StudentService(ApplicationDbcontext dbcontext):IStudentService
 
     public async Task<Response<string>> AddAsync(StudentDto studentDto)
     {
-       Student student = new Student
+        try
+        {
+            Student student = new Student
        {
            Fullname=studentDto.Fullname,
            Birthdate=studentDto.Birthdate,
@@ -19,14 +20,26 @@ public class StudentService(ApplicationDbcontext dbcontext):IStudentService
          _dbcontext.Students.Add(student);
         await _dbcontext.SaveChangesAsync();
          return new Response<string>(HttpStatusCode.OK,"ok");
+        }
+        catch (System.Exception)
+        {
+         return new Response<string>(HttpStatusCode.InternalServerError,"Internal Server Error");
+        }
     }
 
     public async Task<Response<string>> DeleteAsync(int studentid)
     {
-       var res = await _dbcontext.Students.FindAsync(studentid);
-         _dbcontext.Students.Remove(res);
-          await _dbcontext.SaveChangesAsync();
-        return new Response<string>(HttpStatusCode.OK,"ok");
+        try
+        {
+             var res = await _dbcontext.Students.FindAsync(studentid);
+            _dbcontext.Students.Remove(res);
+             await _dbcontext.SaveChangesAsync();
+             return new Response<string>(HttpStatusCode.OK,"ok");
+        }
+        catch (System.Exception)
+        {
+             return new Response<string>(HttpStatusCode.NotFound,"Not Found");
+        }
     }
 
     public async Task<Response<List<Student>>> GetAsync()
@@ -36,34 +49,51 @@ public class StudentService(ApplicationDbcontext dbcontext):IStudentService
 
     public async Task<Response<Student>> GetByIdAsync(int studentid)
     {
-       var res = await _dbcontext.Students.FindAsync(studentid);
-        return new Response<Student>(HttpStatusCode.OK,"ok",res);
+        try
+        {
+          var res = await _dbcontext.Students.FindAsync(studentid);
+          return new Response<Student>(HttpStatusCode.OK,"ok",res);   
+        }
+        catch (System.Exception)
+        {
+             return new Response<Student>(HttpStatusCode.NotFound,"Not Found");
+        }
     }
 
     public async Task<Response<string>> UpdateAsync(int studentid,UpdateStudentDto updateStudentDto)
     {
+        try
+        {
           var s = await _dbcontext.Students.FindAsync(studentid);
             s.Fullname=updateStudentDto.Fullname;
             s.Birthdate=updateStudentDto.Birthdate;
             s.GroupId=updateStudentDto.GroupId;
            s.IsActive=updateStudentDto.IsActive;
-        
-      await _dbcontext.SaveChangesAsync();
-        return new Response<string>(HttpStatusCode.OK,"ok");
+        await _dbcontext.SaveChangesAsync();
+        return new Response<string>(HttpStatusCode.OK,"ok");   
+        }
+        catch (System.Exception)
+        {
+                    return new Response<string>(HttpStatusCode.InternalServerError,"InternalServerError");   
+        }
+          
     }
-
     public async Task<Response<string>> UpdateGroupIdAsync(int studentid,int newgroupid)
     {
-        var stu = await _dbcontext.Students.FirstOrDefaultAsync(a=>a.Id==studentid);
+        try
+        {
+           var stu = await _dbcontext.Students.FirstOrDefaultAsync(a=>a.Id==studentid);
         if (stu==null)
         {
              return new Response<string>(HttpStatusCode.NotFound,"Not Found");
         }
           stu.GroupId=newgroupid;
           await _dbcontext.SaveChangesAsync();
-          return new Response<string>(
-        HttpStatusCode.OK,
-        "Updated successfully"
-    );
+          return new Response<string>(HttpStatusCode.OK,"Updated successfully");   
+        }
+        catch (System.Exception)
+        {
+          return new Response<string>(HttpStatusCode.NotFound,"Not Found");   
+        }
     }
 }

@@ -1,13 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-// builder.Services.AddScoped<IStudentService,StudentService>();
-// builder.Services.AddScoped<IGroupService,GroupService>();
-// builder.Services.AddScoped<IGradeService,GradeService>();
-// builder.Services.AddScoped<IEnrollmentService,EnrollmentService>();
-// builder.Services.AddScoped<ISubjectService,SubjectService>();
-// builder.Services.AddScoped<ITeacherService,TeacherService>();
-// builder.Services.AddControllers();
+builder.Services.AddScoped<IStudentService,StudentService>();
+builder.Services.AddScoped<IGroupService,GroupService>();
+builder.Services.AddScoped<IGradeService,GradeService>();
+builder.Services.AddScoped<IEnrollmentService,EnrollmentService>();
+builder.Services.AddScoped<ISubjectService,SubjectService>();
+builder.Services.AddScoped<ITeacherService,TeacherService>();
+builder.Services.AddControllers();
 builder.Services.AddDbContext<ApplicationDbcontext>(options=> options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
