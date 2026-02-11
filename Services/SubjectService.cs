@@ -1,9 +1,9 @@
 using System.Net;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
-public class SubjectService(ApplicationDbcontext dbcontext):ISubjectService
+public class SubjectService(ApplicationDbContext dbcontext):ISubjectService
 {
-  private readonly ApplicationDbcontext _dbcontext = dbcontext;
+  private readonly ApplicationDbContext _dbcontext = dbcontext;
 
     public async Task<Response<string>> AddAsync(SubjectDto subjectDto)
     {

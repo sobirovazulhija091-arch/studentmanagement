@@ -1,9 +1,9 @@
 using Dapper;
 using Microsoft.EntityFrameworkCore;
 using System.Net;
-public class StudentService(ApplicationDbcontext dbcontext):IStudentService
+public class StudentService(ApplicationDbContext dbcontext):IStudentService
 { 
-    private readonly ApplicationDbcontext _dbcontext=dbcontext;
+    private readonly ApplicationDbContext _dbcontext=dbcontext;
 
     public async Task<Response<string>> AddAsync(StudentDto studentDto)
     {

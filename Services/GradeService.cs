@@ -2,9 +2,9 @@ using System.Net;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
 
-public class GradeService(ApplicationDbcontext dbcontext):IGradeService
+public class GradeService(ApplicationDbContext dbcontext):IGradeService
 {
-       private ApplicationDbcontext _dbcontext=dbcontext;
+       private ApplicationDbContext _dbcontext=dbcontext;
     public async Task<Response<string>> AddAsync(GradeDto gradeDto)
     {
         try

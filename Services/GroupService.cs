@@ -2,9 +2,9 @@ using System.Net;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
 
-public class GroupService(ApplicationDbcontext dbcontext):IGroupService
+public class GroupService(ApplicationDbContext dbcontext):IGroupService
 {
-    private readonly ApplicationDbcontext _dbcontext=dbcontext;
+    private readonly ApplicationDbContext _dbcontext=dbcontext;
 
     public async Task<Response<string>> AddAsync(GroupDto groupDto)
     {

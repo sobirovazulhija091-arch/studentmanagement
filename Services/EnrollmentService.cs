@@ -1,9 +1,9 @@
 using System.Net;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
-public class EnrollmentService(ApplicationDbcontext dbcontext):IEnrollmentService
+public class EnrollmentService(ApplicationDbContext dbcontext):IEnrollmentService
 {
-    private readonly ApplicationDbcontext _dbcontext=dbcontext;
+    private readonly ApplicationDbContext _dbcontext=dbcontext;
     public async Task<Response<string>> AddAsync(EnrollmentDto enrollmentDto)
     {
           try
