@@ -4,13 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
 [Route("api/auth")]
-public class AuthController : ControllerBase
+public class JwtController : ControllerBase
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IJwtTokenService _jwt;
 
-    public AuthController(
+    public JwtController(
         UserManager<ApplicationUser> userManager,
         SignInManager<ApplicationUser> signInManager,
         IJwtTokenService jwt)
