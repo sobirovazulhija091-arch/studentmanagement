@@ -1,8 +1,10 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
+
 
 public interface IJwtTokenService
 {
@@ -23,9 +25,11 @@ public class JwtTokenService : IJwtTokenService
     public async Task<string> CreateTokenAsync(ApplicationUser user)
     {
         var jwt = _config.GetSection("Jwt");
-
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt["Key"]!));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+        var userClaims = await _userManager.GetClaimsAsync(user);
+        var roel = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt["Key"]!));
+        var credsRole = new SigningCredentials(roel, SecurityAlgorithms.HmacSha256);
 
         var roles = await _userManager.GetRolesAsync(user);
 

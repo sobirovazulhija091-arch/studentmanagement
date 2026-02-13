@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
+
 builder.Services.AddDbContext<ApplicationDbContext>(opt =>
     opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.Configure<EmailSettings>(
@@ -48,8 +49,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ClockSkew = TimeSpan.FromSeconds(30)
         };
     });
-builder.Services.AddAuthorization();
-
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("SendEmailPolicy",
+        policy => policy.RequireClaim("Permission", "SendEmail"));
+});
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -101,12 +105,32 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 builder.Services.AddLogging(cofig=>{cofig.AddConsole();});
 var app = builder.Build();
-if (app.Environment.IsDevelopment())
+
+try
 {
-    app.UseSwaggerUI();
-    app.UseSwagger();
+    await using var scope = app.Services.CreateAsyncScope();
+    var services = scope.ServiceProvider;
+    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+
+    await DefaultRoles.SeedRoles(roleManager);
+
+    app.Logger.LogInformation("Finished Seeding Default Data");
+    app.Logger.LogInformation("Application Starting");
 }
-app.UseMiddleware<RequestTimeMiddleware>();
-app.MapOpenApi();
+catch (Exception ex)
+{
+    app.Logger.LogError("An Error occurred while seeding the db:  {ExMessage}", ex.Message);
+}
+
+
+app.UseSwagger();
+app.UseSwaggerUI();
+
+app.UseHttpsRedirection();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapControllers();
+
 app.Run();
