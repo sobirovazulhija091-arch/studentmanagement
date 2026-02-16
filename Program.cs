@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Quartz;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<ApplicationDbContext>(opt =>
@@ -94,6 +95,7 @@ builder.Services.AddSwaggerGen(options =>
     });
 });
 builder.Services.AddScoped<IStudentService,StudentService>();
+builder.Services.AddHostedService<EmailWorker>();
 builder.Services.AddScoped<IGroupService,GroupService>();
 builder.Services.AddScoped<IGradeService,GradeService>();
 builder.Services.AddScoped<IEnrollmentService,EnrollmentService>();
@@ -104,6 +106,20 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 builder.Services.AddLogging(cofig=>{cofig.AddConsole();});
+builder.Services.AddQuartz(q =>
+{
+    var jobKey = new JobKey("ReportJob");
+
+    q.AddJob<ReportJob>(opts => opts.WithIdentity(jobKey));
+
+    q.AddTrigger(opts => opts
+        .ForJob(jobKey)
+        .WithSimpleSchedule(x =>
+            x.WithIntervalInMinutes(2)
+             .RepeatForever()));
+});
+
+builder.Services.AddQuartzHostedService();
 var app = builder.Build();
 
 try
@@ -113,7 +129,6 @@ try
     var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
 
     await DefaultRoles.SeedRoles(roleManager);
-
     app.Logger.LogInformation("Finished Seeding Default Data");
     app.Logger.LogInformation("Application Starting");
 }

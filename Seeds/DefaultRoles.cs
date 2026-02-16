@@ -13,4 +13,9 @@ public class DefaultRoles
                 await roleManager.CreateAsync(new IdentityRole(role));
         }
     }
+
+    internal static async Task SeedRoles(object role)
+    {
+        throw new NotImplementedException();
+    }
 }

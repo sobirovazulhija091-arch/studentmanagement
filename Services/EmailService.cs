@@ -5,7 +5,6 @@ using Microsoft.Extensions.Options;
 public class EmailService : IEmailService
 {
     private readonly EmailSettings _settings;
-
     public EmailService(IOptions<EmailSettings> settings)
     {
         _settings = settings.Value;

@@ -9,7 +9,7 @@ public class EmailTastingController(IEmailService service,UserManager<Applicatio
 {
      private readonly IEmailService _emailService = service;
         private readonly UserManager<ApplicationUser> _userManager = userManager;
-         [Authorize(Policy = "SendEmailPolicy")]
+        //  [Authorize(Policy = "SendEmailPolicy")]
         [HttpPost]
         public async Task<IActionResult> SendTestEmail()
         {
@@ -52,7 +52,6 @@ public class EmailTastingController(IEmailService service,UserManager<Applicatio
         
             var token = await _userManager.GeneratePasswordResetTokenAsync(user);
         
-            // var link = $"http://localhost:5053/api/EmailTesting/reset-password?email={dto.Email}&token={Uri.EscapeDataString(token)}";
             var link = $"http://localhost:5053/api/EmailTesting/reset-password?email={dto.Email}&token={Uri.EscapeDataString(token)}";
             await _emailService.SendAsync(dto.Email,
                 "Reset Password",
