@@ -6,7 +6,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Quartz;
 var builder = WebApplication.CreateBuilder(args);
-
 builder.Services.AddDbContext<ApplicationDbContext>(opt =>
     opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.Configure<EmailSettings>(
@@ -56,7 +55,7 @@ builder.Services.AddAuthorization(options =>
         policy => policy.RequireClaim("Permission", "SendEmail"));
 });
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
-
+builder.Services.AddMemoryCache();
 builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.AddControllers();
@@ -94,6 +93,7 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
+builder.Services.AddScoped<ICachingService , CachingService>();
 builder.Services.AddScoped<IStudentService,StudentService>();
 builder.Services.AddHostedService<EmailWorker>();
 builder.Services.AddScoped<IGroupService,GroupService>();

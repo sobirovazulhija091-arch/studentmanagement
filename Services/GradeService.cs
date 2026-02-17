@@ -1,10 +1,15 @@
 using System.Net;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
-public class GradeService(ApplicationDbContext dbcontext):IGradeService
+public class GradeService(ApplicationDbContext dbcontext,IMemoryCache cache,ILogger<GradeService> logger):IGradeService
 {
        private ApplicationDbContext _dbcontext=dbcontext;
+       private readonly IMemoryCache _cache=cache;
+       private readonly ILogger<GradeService> _logger=logger;
+       private const string CacheKey = "grades_all";
+
     public async Task<Response<string>> AddAsync(GradeDto gradeDto)
     {
         try
@@ -30,15 +35,25 @@ public class GradeService(ApplicationDbContext dbcontext):IGradeService
     }
     public async Task<Response<List<Grade>>> GetAsync()
     {
-        try
+        // try
+        // {
+        // return new Response<List<Grade>>(HttpStatusCode.OK,"ok",await _dbcontext.Grades.ToListAsync());
+        // }
+        // catch (System.Exception)
+        // {
+        // return new Response<List<Grade>>(HttpStatusCode.InternalServerError,"Internal Server Error");
+        // }
+     var grades = await _cache.GetOrCreateAsync(CacheKey, async entry =>
         {
-        return new Response<List<Grade>>(HttpStatusCode.OK,"ok",await _dbcontext.Grades.ToListAsync());
-        }
-        catch (System.Exception)
-        {
-        return new Response<List<Grade>>(HttpStatusCode.InternalServerError,"Internal Server Error");
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30);
+            entry.SlidingExpiration = TimeSpan.FromSeconds(1);
+            entry.Priority =CacheItemPriority.High;
             
-        }
+            _logger.LogInformation("Cache miss for grades. Fetching from database...");
+            await Task.Delay(1000); 
+           return await _dbcontext.Grades.ToListAsync();
+    });
+    return new Response<List<Grade>>(HttpStatusCode.OK, "ok", grades);
     }
     public async Task<Response<List<Grade>>> GetGradeAsync()
     {
@@ -52,13 +67,5 @@ public class GradeService(ApplicationDbContext dbcontext):IGradeService
         return new Response<List<Grade>>(HttpStatusCode.NotFound,"Not Found");
         }
     }
-
-    // public async Task<List<Grade>> GetGradeAverageAsync()
-    // {
-    //      using var conn = _dbcontext.Connection();
-    //     var query="select g.avg(gradevalue),st.fullname from grades g join students st on st.id=g.studentid ";
-    //     var res = await conn.QueryAsync<Grade>(query);
-    //     return res.ToList();
-    // }
 }
 

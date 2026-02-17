@@ -1,9 +1,13 @@
 using Dapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using System.Net;
-public class StudentService(ApplicationDbContext dbcontext):IStudentService
+public class StudentService(ApplicationDbContext dbcontext,IMemoryCache cache,ILogger<StudentService> logger):IStudentService
 { 
     private readonly ApplicationDbContext _dbcontext=dbcontext;
+    private readonly IMemoryCache _cache=cache;
+    private readonly ILogger<StudentService> _logger=logger;
+    private const string CacheKey = "students_all";
 
     public async Task<Response<string>> AddAsync(StudentDto studentDto)
     {
@@ -44,7 +48,19 @@ public class StudentService(ApplicationDbContext dbcontext):IStudentService
 
     public async Task<Response<List<Student>>> GetAsync()
     {
-        return new Response<List<Student>>(HttpStatusCode.OK,"ok",await _dbcontext.Students.ToListAsync());
+        // return new Response<List<Student>>(HttpStatusCode.OK,"ok",await _dbcontext.Students.ToListAsync());
+        var students = await  _cache.GetOrCreateAsync(
+        CacheKey, async entry => 
+        {
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30);
+            entry.SlidingExpiration = TimeSpan.FromSeconds(1);
+            entry.Priority =CacheItemPriority.High;
+            
+            _logger.LogInformation("Cache miss for students. Fetching from database...");
+            await Task.Delay(1000); 
+            return await _dbcontext.Students.ToListAsync();
+        });
+        return new Response<List<Student>>(HttpStatusCode.OK, "ok", students);
     }
 
     public async Task<Response<Student>> GetByIdAsync(int studentid)

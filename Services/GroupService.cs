@@ -1,10 +1,14 @@
 using System.Net;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
-public class GroupService(ApplicationDbContext dbcontext):IGroupService
+public class GroupService(ApplicationDbContext dbcontext,IMemoryCache cache,ILogger<GroupService> logger):IGroupService
 {
     private readonly ApplicationDbContext _dbcontext=dbcontext;
+    private readonly IMemoryCache _cache=cache;
+    private readonly ILogger<GroupService> _logger=logger;
+    private const string CacheKey = "groups_all";
 
     public async Task<Response<string>> AddAsync(GroupDto groupDto)
     {
@@ -45,15 +49,26 @@ public class GroupService(ApplicationDbContext dbcontext):IGroupService
 
     public async  Task<Response<List<Group>>> GetAsync()
     {
-        try
-        {
-                    return new Response<List<Group>>(HttpStatusCode.OK,"ok",await _dbcontext.Groups.ToListAsync());
+        // try
+        // {
+        //             return new Response<List<Group>>(HttpStatusCode.OK,"ok",await _dbcontext.Groups.ToListAsync());
 
-        }
-        catch (System.Exception)
+        // }
+        // catch (System.Exception)
+        // {
+        //             return new Response<List<Group>>(HttpStatusCode.InternalServerError,"Internal Server Error");
+        // }
+        var groups = await  _cache.GetOrCreateAsync(CacheKey, async entry =>
         {
-                    return new Response<List<Group>>(HttpStatusCode.InternalServerError,"Internal Server Error");
-        }
+           entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(40);
+        entry.SlidingExpiration = TimeSpan.FromSeconds(1);
+            entry.Priority =CacheItemPriority.High;
+            
+            _logger.LogInformation("Cache miss for groups. Fetching from database...");
+            await Task.Delay(1000); 
+            return await _dbcontext.Groups.ToListAsync();}
+      );
+   return new Response<List<Group>>(HttpStatusCode.OK, "ok", groups);
     }
 
     public async Task<Response<Group>> GetByIdAsync(int groupid)

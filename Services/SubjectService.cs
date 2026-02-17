@@ -1,9 +1,13 @@
 using System.Net;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
-public class SubjectService(ApplicationDbContext dbcontext):ISubjectService
+using Microsoft.Extensions.Caching.Memory;
+public class SubjectService(ApplicationDbContext dbcontext,IMemoryCache cache,ILogger<SubjectService> logger):ISubjectService
 {
   private readonly ApplicationDbContext _dbcontext = dbcontext;
+  private readonly IMemoryCache _cache=cache;
+  private readonly ILogger<SubjectService> _logger=logger;
+  private const string CacheKey = "subjects_all";
 
     public async Task<Response<string>> AddAsync(SubjectDto subjectDto)
     {
@@ -42,14 +46,26 @@ public class SubjectService(ApplicationDbContext dbcontext):ISubjectService
 
     public async Task<Response<List<Subject>>> GetAsync()
     {
-         try
+        //  try
+        // {
+        //       return new Response<List<Subject>>(HttpStatusCode.OK,"ok",await _dbcontext.Subjects.ToListAsync());
+        // }
+        // catch (System.Exception)
+        // {
+        // return new Response<List<Subject>>(HttpStatusCode.NotFound,"Not Found");  
+        // }
+        var subjects = await  _cache.GetOrCreateAsync(
+        CacheKey, async entry =>
         {
-              return new Response<List<Subject>>(HttpStatusCode.OK,"ok",await _dbcontext.Subjects.ToListAsync());
-        }
-        catch (System.Exception)
-        {
-        return new Response<List<Subject>>(HttpStatusCode.NotFound,"Not Found");  
-        }
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30);
+            entry.SlidingExpiration = TimeSpan.FromSeconds(1);
+            entry.Priority =CacheItemPriority.High;
+            
+            _logger.LogInformation("Cache miss for subjects. Fetching from database...");
+            await Task.Delay(1000); 
+            return await _dbcontext.Subjects.ToListAsync();
+        });
+        return new Response<List<Subject>>(HttpStatusCode.OK, "ok", subjects);
     }
 
     public async Task<Response<Subject>> GetByIdAsync(int subjectid)

@@ -1,9 +1,13 @@
 using System.Net;
 using Dapper;
 using Microsoft.EntityFrameworkCore;
-public class EnrollmentService(ApplicationDbContext dbcontext):IEnrollmentService
+using Microsoft.Extensions.Caching.Memory;
+public class EnrollmentService(ApplicationDbContext dbcontext,IMemoryCache cache,ILogger<EnrollmentService> logger):IEnrollmentService
 {
     private readonly ApplicationDbContext _dbcontext=dbcontext;
+     private readonly IMemoryCache _cache=cache;
+       private readonly ILogger<EnrollmentService> _logger=logger;
+       private const string CacheKey = "enrollments_all";
     public async Task<Response<string>> AddAsync(EnrollmentDto enrollmentDto)
     {
           try
@@ -26,18 +30,28 @@ public class EnrollmentService(ApplicationDbContext dbcontext):IEnrollmentServic
           }
     public async Task<Response<List<Enrollment>>> GetAsync()
     {
-        try
+        // try
+        // {
+        //      return new Response<List<Enrollment>>(HttpStatusCode.OK,"ok",await  _dbcontext.Enrollments.ToListAsync());
+        // }
+        // catch (System.Exception ex)
+        // {
+        //     Console.WriteLine(ex);
+        //     return new Response<List<Enrollment>>(HttpStatusCode.InternalServerError,"Internal Server Error");
+        // }
+      var enrolmetn =  await _cache.GetOrCreateAsync(
+        CacheKey, async entry =>
         {
-             return new Response<List<Enrollment>>(HttpStatusCode.OK,"ok",await  _dbcontext.Enrollments.ToListAsync());
-        }
-        catch (System.Exception ex)
-        {
-            Console.WriteLine(ex);
-            return new Response<List<Enrollment>>(HttpStatusCode.InternalServerError,"Internal Server Error");
-        }
-
-
-    }//stdent whit subject
+            entry.AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(30);
+            entry.SlidingExpiration = TimeSpan.FromSeconds(1);
+            entry.Priority =CacheItemPriority.High;
+            
+            _logger.LogInformation("Cache miss for enrollments. Fetching from database...");
+            await Task.Delay(1000); 
+            return await _dbcontext.Enrollments.ToListAsync();}
+      );
+   return new Response<List<Enrollment>>(HttpStatusCode.OK, "ok", enrolmetn);
+    }
      public async Task<Response<string>> UpdateActiveAsync(int enrollmentId, bool active)
     {
     try
