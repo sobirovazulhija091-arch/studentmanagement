@@ -9,7 +9,7 @@ public class Student:BaseEntite
     [MaxLength(20)]
      public int Phone{get;set;}
      public bool IsActive{get;set;}=true;
-     public int GroupId{get;set;}
+     public int GroupId{get;set;}=1;
      public Group? Group{get;set;}
      public List<Enrollment> Enrollments{get;set;}=[];
      public List<Grade> Grades{get;set;}=[];

@@ -25,7 +25,7 @@ public class StudentController(IStudentService studentService):ControllerBase
     {
           return await studentService.GetByIdAsync(studentid);
     }
-     [HttpPut]
+     [HttpPut("{Id}")]
     public async Task<Response<string>> UpdateAsync(int studentid,UpdateStudentDto updateStudentDto)
     {
         return await studentService.UpdateAsync(studentid,updateStudentDto);

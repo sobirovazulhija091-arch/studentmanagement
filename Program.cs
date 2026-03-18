@@ -8,6 +8,16 @@ using Quartz;
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<ApplicationDbContext>(opt =>
     opt.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBlazor",
+        policy =>
+        {
+            policy.WithOrigins("http://localhost:5008")
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+        });
+});
 builder.Services.Configure<EmailSettings>(
     builder.Configuration.GetSection("EmailSettings"));
 builder.Services
@@ -106,20 +116,20 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 builder.Services.AddLogging(cofig=>{cofig.AddConsole();});
-builder.Services.AddQuartz(q =>
-{
-    var jobKey = new JobKey("ReportJob");
+// builder.Services.AddQuartz(q =>
+// {
+//     var jobKey = new JobKey("ReportJob");
 
-    q.AddJob<ReportJob>(opts => opts.WithIdentity(jobKey));
+//     q.AddJob<ReportJob>(opts => opts.WithIdentity(jobKey));
 
-    q.AddTrigger(opts => opts
-        .ForJob(jobKey)
-        .WithSimpleSchedule(x =>
-            x.WithIntervalInMinutes(2)
-             .RepeatForever()));
-});
+//     q.AddTrigger(opts => opts
+//         .ForJob(jobKey)
+//         .WithSimpleSchedule(x =>
+//             x.WithIntervalInMinutes(2)
+//              .RepeatForever()));
+// });
 
-builder.Services.AddQuartzHostedService();
+// builder.Services.AddQuartzHostedService();
 var app = builder.Build();
 
 try
@@ -138,6 +148,8 @@ catch (Exception ex)
 }
 
 
+
+app.UseCors("AllowBlazor");
 app.UseSwagger();
 app.UseSwaggerUI();
 
